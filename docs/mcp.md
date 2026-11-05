@@ -373,7 +373,8 @@ Coordinates are points in document space: y points down, the origin is the first
 document is 612 × 792 (US Letter). New objects become the selection. Most commands act on the selection or on
 explicit `ids`. A command that leaves out an object selected inside a selected group also leaves it out when `ids`
 list it together with a group that holds it. The commands that select their `ids` first (`object.group`, the
-`object.arrange.*` commands, `object.move`, the Pathfinder commands and the others like them) refuse an id that names a
+`object.arrange.*` commands, `object.move`, `object.align`, `object.distribute`, `object.distributeSpacing`, the
+Pathfinder commands and the others like them) refuse an id that names a
 layer or sublayer, names no object or is not a non-negative integer, with an error that names the command that was run,
 and leave the document and the selection unchanged; `layer.move` reorders layers.
 explicit `ids`, which stand in for the selection, so they work with nothing selected. Where a command's params say

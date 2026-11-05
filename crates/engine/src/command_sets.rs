@@ -71,6 +71,7 @@ pub(crate) fn strip_replay_only(id: &str, p: &mut Value) {
 /// menu command's (#2130).
 pub(crate) const SELECTS_GIVEN_IDS: &[&str] = &[
     "edit.duplicate",
+    "object.align",
     "object.arrange.bringForward",
     "object.arrange.bringToFront",
     "object.arrange.sendBackward",
@@ -84,6 +85,8 @@ pub(crate) const SELECTS_GIVEN_IDS: &[&str] = &[
     "object.compoundShape.make",
     "object.compoundShape.release",
     "object.compoundShape.setMode",
+    "object.distribute",
+    "object.distributeSpacing",
     "object.group",
     "object.hide",
     "object.lock",

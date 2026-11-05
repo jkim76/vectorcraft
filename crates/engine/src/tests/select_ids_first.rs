@@ -119,6 +119,10 @@ fn ids_are_selected_first() {
         ("object.pathfinder.crop", json!({}), &none),
         ("object.pathfinder.outline", json!({}), &none),
         ("object.pathfinder.minusBack", json!({}), &none),
+        ("object.align", json!({"horizontal": "left", "vertical": "top"}), &none),
+        ("object.align", json!({"horizontal": "center", "to": "artboard"}), &one),
+        ("object.distribute", json!({"horizontal": "center"}), &none),
+        ("object.distributeSpacing", json!({"axis": "vertical"}), &none),
     ];
     for (cmd, params, setup) in cases {
         same_as_selecting_first(cmd, params, setup);
@@ -257,4 +261,28 @@ fn without_ids_the_selection_is_used_as_before() {
     // Nothing selected and no ids: still disabled.
     s.execute("select.none", &json!({})).unwrap();
     assert!(matches!(s.execute("object.group", &json!({})), Err(EngineError::Disabled(..))));
+}
+
+/// Align and Distribute act on the objects given as `ids`: before, they ignored the key and lined
+/// up the selection instead, so an agent naming its objects saw nothing move.
+#[test]
+fn align_and_distribute_move_the_given_ids() {
+    let tops = |s: &Session, ids: &[u64]| -> Vec<f64> {
+        let d = &s.doc().unwrap().doc;
+        ids.iter().map(|i| d.bounds_of(&[NodeId(*i)], false).unwrap().y0).collect()
+    };
+    let (mut s, ids) = doc();
+    s.execute("select.set", &json!({"ids": [ids[3]]})).unwrap();
+    s.execute("object.align", &json!({"ids": &ids[..3], "vertical": "top"})).unwrap();
+    assert_eq!(tops(&s, &ids[..3]), vec![10.0, 10.0, 10.0]);
+    assert_eq!(s.doc().unwrap().selection.objects, ids[..3].iter().map(|i| NodeId(*i)).collect::<Vec<_>>());
+
+    let (mut s, ids) = doc();
+    s.execute("object.move", &json!({"ids": [ids[1]], "dx": 0, "dy": 15})).unwrap();
+    s.execute("select.set", &json!({"ids": [ids[3]]})).unwrap();
+    assert_eq!(tops(&s, &ids[..3]), vec![10.0, 45.0, 50.0]);
+    s.execute("object.distribute", &json!({"ids": &ids[..3], "vertical": "top"})).unwrap();
+    assert_eq!(tops(&s, &ids[..3]), vec![10.0, 30.0, 50.0]);
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!(tops(&s, &ids[..3]), vec![10.0, 45.0, 50.0], "one undo step takes it back");
 }
